@@ -1,18 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 
 
 # Create your views here.
 def cadastrar(request):
-    if request.method == 'GET':
-        return render(request, 'usuarios/cadastrar.html')
-
-    if request.method == 'POST':
-        return render(request, 'usuarios/cadastrar.html')
+    return HttpResponse('Cadastrar')
 
 
 def login(request):
-    if request.method == 'GET':
-        return render(request, 'usuarios/login.html')
-
-    if request.method == 'POST':
-        return render(request, 'usuarios/login.html')
+    return HttpResponse('Login')
