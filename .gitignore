@@ -19,4 +19,4 @@ promptClaude.txt
 postgres_data/
 data/
 media/
-.env
+completo.env
