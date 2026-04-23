@@ -1,13 +1,21 @@
 services:
   db:
     image: postgres:16-alpine
+    container_name: dizimo_db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dizimo}
       POSTGRES_USER: ${POSTGRES_USER:-dizimo}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dizimo}
+    # Expõe a porta 5432 no host para que você possa conectar com
+    # DBeaver / pgAdmin / psql de fora do container.
+    # Se a porta 5432 do host já estiver em uso, troque para "5433:5432".
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # Bind mount: o dado do Postgres fica em ./postgres_data no host.
+      # Troque para volume nomeado se tiver problemas de permissão no Windows.
+      - ./postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dizimo} -d ${POSTGRES_DB:-dizimo}"]
       interval: 5s
@@ -16,17 +24,19 @@ services:
 
   web:
     build: .
+    container_name: dizimo_web
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     environment:
       DEBUG: "False"
-      SECRET_KEY: ${SECRET_KEY}
+      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
       CSRF_TRUSTED_ORIGINS: ${CSRF_TRUSTED_ORIGINS:-}
+      # Conexão com o Postgres (dentro da rede do compose, host = "db")
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
       POSTGRES_DB: ${POSTGRES_DB:-dizimo}
@@ -36,8 +46,5 @@ services:
       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD:-}
       DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL:-}
     volumes:
-      - media_data:/app/media
-
-volumes:
-  postgres_data:
-  media_data:
+      # Uploads do usuário
+      - ./media:/app/media
