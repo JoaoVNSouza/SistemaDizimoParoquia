@@ -40,6 +40,10 @@ ALLOWED_HOSTS = [h.strip() for h in os.environ.get(
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get(
     "CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 
+# Atrás do reverse proxy do EasyPanel: HTTPS externo, HTTP interno.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
 
 # Application definition
 
