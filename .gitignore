@@ -8,3 +8,15 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Claude
+.claude/
+.openclaude-profile.json
+CLAUDE.md
+promptClaude.txt
+
+# Dados persistentes do Docker
+postgres_data/
+data/
+media/
+.env

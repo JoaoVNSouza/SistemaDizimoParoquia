@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprovante Nº {{ dizimo.pk }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{% static 'logo_paroquia_ico.ico' %}">
+    <style>
+        body { background: #eef; padding: 24px 0; }
+        .receipt {
+            background: #fff;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 32px 40px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #212529;
+        }
+        .receipt h2 { margin-bottom: 0; }
+        .receipt .subtitle { color: #6c757d; letter-spacing: 1px; }
+        .receipt .logo { height: 80px; }
+        .divider { border-top: 2px dashed #0d6efd; margin: 20px 0; }
+        .valor-destaque {
+            border: 2px solid #0d6efd;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0d6efd;
+            display: inline-block;
+        }
+        dt { font-weight: 600; color: #495057; }
+        dd { margin-bottom: 8px; }
+        .assinatura {
+            margin-top: 60px;
+            border-top: 1px solid #212529;
+            width: 60%;
+            margin-left: auto;
+            margin-right: auto;
+            padding-top: 6px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .acoes {
+            max-width: 720px;
+            margin: 16px auto;
+            text-align: center;
+            padding: 0 12px;
+        }
+        .acoes .btn { margin: 4px 2px; }
+
+        @media (max-width: 575.98px) {
+            body { padding: 12px 0; }
+            .receipt {
+                padding: 20px 16px;
+                margin: 0 12px;
+                border-radius: 8px;
+            }
+            .receipt .logo { height: 56px; }
+            .receipt h2 { font-size: 1.25rem; }
+            .receipt .h4 { font-size: 1rem; }
+            .valor-destaque {
+                font-size: 1.4rem;
+                padding: 10px 16px;
+            }
+            .receipt-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px;
+            }
+            .receipt-header .text-end {
+                text-align: left !important;
+                width: 100%;
+            }
+            .assinatura { width: 90%; margin-top: 40px; }
+            dt, dd { padding-left: 0; padding-right: 0; }
+        }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .acoes { display: none !important; }
+            .receipt { border: none; box-shadow: none; max-width: 100%; margin: 0; padding: 24px 32px; }
+            @page { margin: 12mm; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="acoes">
+    <button onclick="window.print()" class="btn btn-primary">
+        <i class="bi bi-printer"></i> Imprimir
+    </button>
+    <a href="{% url 'dizimo:listar' %}" class="btn btn-outline-secondary">Voltar</a>
+</div>
+
+<div class="receipt">
+    <div class="receipt-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <img src="{% static 'logo_paroquia_png.png' %}" alt="Logo da Paróquia" class="logo">
+            <div>
+                <h2>Paróquia</h2>
+                <div class="subtitle text-uppercase small">Comprovante de Dízimo</div>
+            </div>
+        </div>
+        <div class="text-end">
+            <div class="small text-muted">Nº do comprovante</div>
+            <div class="h4 mb-0">#{{ dizimo.pk|stringformat:"06d" }}</div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="text-center mb-3">
+        <div class="small text-muted mb-1">Valor pago</div>
+        <span class="valor-destaque">R$ {{ dizimo.valor|floatformat:2 }}</span>
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-4">Fiel</dt>
+        <dd class="col-sm-8">{{ dizimo.fiel.nome }}</dd>
+
+        <dt class="col-sm-4">CPF</dt>
+        <dd class="col-sm-8">{{ dizimo.fiel.cpf }}</dd>
+
+        <dt class="col-sm-4">Data do pagamento</dt>
+        <dd class="col-sm-8">{{ dizimo.data_pagamento|date:"d/m/Y" }}</dd>
+
+        <dt class="col-sm-4">Referência</dt>
+        <dd class="col-sm-8">{{ dizimo.referencia|date:"F/Y"|capfirst }}</dd>
+
+        <dt class="col-sm-4">Forma de pagamento</dt>
+        <dd class="col-sm-8">{{ dizimo.get_forma_pagamento_display }}</dd>
+
+        <dt class="col-sm-4">Status</dt>
+        <dd class="col-sm-8">
+            {% if dizimo.pago %}
+                <span class="badge bg-success">Pago</span>
+            {% else %}
+                <span class="badge bg-warning text-dark">Pendente</span>
+            {% endif %}
+        </dd>
+
+        {% if dizimo.observacao %}
+            <dt class="col-sm-4">Observação</dt>
+            <dd class="col-sm-8">{{ dizimo.observacao }}</dd>
+        {% endif %}
+    </dl>
+
+    <div class="divider"></div>
+
+    <p class="small text-muted mb-0">
+        Declaramos que recebemos do(a) fiel acima identificado(a) a importância
+        de <strong>R$ {{ dizimo.valor|floatformat:2 }}</strong>
+        referente ao dízimo do mês de <strong>{{ dizimo.referencia|date:"F/Y"|capfirst }}</strong>,
+        pago em <strong>{{ dizimo.data_pagamento|date:"d/m/Y" }}</strong>
+        via {{ dizimo.get_forma_pagamento_display|lower }}.
+    </p>
+
+    <div class="assinatura">Assinatura do responsável</div>
+
+    <div class="text-center text-muted small mt-4">
+        Comprovante emitido em {% now "d/m/Y H:i" %} — "Deus ama a quem dá com alegria" (2Co 9,7)
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,7 +1,163 @@
-{% load static %} 
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Sistema de Dízimos{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'logo_paroquia_ico.ico' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f5f6fa; }
+        .navbar-brand { font-weight: 600; }
+        .card { border: none; border-radius: 0.75rem; }
+        .stat-card { border-left: 4px solid #0d6efd; }
+        .stat-card .stat-value { font-size: 1.75rem; font-weight: 700; }
+        footer { color: #6c757d; font-size: 0.85rem; }
 
-{% block 'head' %} 
-{% endblock 'head' %} 
+        /* Cabeçalho da página (título + ações) responsivo */
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            gap: .75rem;
+            margin-bottom: 1rem;
+        }
+        .page-header .page-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+        @media (min-width: 768px) {
+            .page-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.25rem;
+            }
+        }
 
-{% block 'body' %} 
-{% endblock 'body' %}
+        /* Ajustes para celulares */
+        @media (max-width: 575.98px) {
+            main.container { padding-left: .85rem; padding-right: .85rem; }
+            h3, .h3 { font-size: 1.35rem; }
+            h4, .h4 { font-size: 1.15rem; }
+            h5, .h5 { font-size: 1.05rem; }
+            .stat-card .stat-value { font-size: 1.4rem; }
+            .card-body { padding: 1rem; }
+
+            /* Tabelas mais compactas */
+            .table { font-size: .875rem; }
+            .table > :not(caption) > * > * { padding: .5rem .55rem; }
+
+            /* Botões de ação em linhas de tabela ficam alinhados, sem quebra estranha */
+            td .btn-sm, th .btn-sm { padding: .25rem .45rem; }
+            td.acoes-cell, th.acoes-cell {
+                white-space: nowrap;
+            }
+            td.acoes-cell .btn,
+            td.acoes-cell form { margin-bottom: .15rem; }
+
+            /* Botões dentro do page-header viram block para preencher a largura */
+            .page-header .page-actions .btn { flex: 1 1 auto; }
+
+            /* Navbar: melhor espaçamento dos itens empilhados */
+            .navbar-collapse .nav-link { padding: .55rem 0; }
+            .navbar-collapse .dropdown-menu { box-shadow: none; }
+        }
+
+        /* Tablets: leves ajustes */
+        @media (min-width: 576px) and (max-width: 991.98px) {
+            .stat-card .stat-value { font-size: 1.55rem; }
+            .table { font-size: .92rem; }
+        }
+
+        /* Garante scroll horizontal suave em tabelas */
+        .table-responsive { -webkit-overflow-scrolling: touch; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-3 mb-md-4">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'dashboard:index' %}">
+            <img src="{% static 'logo_paroquia_png.png' %}" alt="Logo da Paróquia"
+                 height="32" class="me-2">
+            Dízimos
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"
+                aria-controls="nav" aria-expanded="false" aria-label="Alternar navegação">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard:index' %}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'fieis:listar' %}">
+                        <i class="bi bi-people"></i> Fiéis
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dizimo:listar' %}">
+                        <i class="bi bi-cash-coin"></i> Dízimos
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard:relatorio' %}">
+                        <i class="bi bi-file-earmark-text"></i> Relatório
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'usuarios:cadastrar' %}">
+                        <i class="bi bi-person-plus"></i> Novo usuário
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> {{ user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <form action="{% url 'usuarios:logout' %}" method="post" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-box-arrow-right"></i> Sair
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endif %}
+
+<main class="container pb-5">
+    {% if messages %}
+        {% for m in messages %}
+            <div class="alert alert-{{ m.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ m }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block body %}{% endblock %}
+</main>
+
+<footer class="text-center py-3">
+    <small>&copy; {% now "Y" %} Sistema de Dízimos — JVSYSTEM</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

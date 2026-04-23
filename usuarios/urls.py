@@ -1,7 +1,10 @@
 from django.urls import path
-from usuarios import views
+from . import views
+
+app_name = "usuarios"
 
 urlpatterns = [
-    path('cadastrar', views.cadastrar, name='cadastrar'),
-    path('login', views.login, name='login'),
+    path("login/", views.login, name="login"),
+    path("logout/", views.logout, name="logout"),
+    path("cadastrar/", views.cadastrar, name="cadastrar"),
 ]

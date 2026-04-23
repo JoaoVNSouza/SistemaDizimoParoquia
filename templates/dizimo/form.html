@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-cash-coin"></i> {{ titulo }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12 col-md-8">
+                            <label class="form-label">Fiel</label>
+                            {{ form.fiel }}
+                            {% if form.fiel.errors %}<div class="text-danger small">{{ form.fiel.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Valor (R$)</label>
+                            {{ form.valor }}
+                            {% if form.valor.errors %}<div class="text-danger small">{{ form.valor.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label">Data do pagamento</label>
+                            {{ form.data_pagamento }}
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label">Referência (mês/ano)</label>
+                            {{ form.referencia }}
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">Forma de pagamento</label>
+                            {{ form.forma_pagamento }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Observação</label>
+                            {{ form.observacao }}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.pago }}
+                                <label class="form-check-label" for="{{ form.pago.id_for_label }}">
+                                    Marcar como pago
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex flex-column flex-sm-row gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Salvar
+                        </button>
+                        <a href="{% url 'dizimo:listar' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

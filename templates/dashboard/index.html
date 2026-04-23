@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block titulo %}Dashboard{% endblock %}
+
+{% block body %}
+<h3 class="mb-3 mb-md-4"><i class="bi bi-speedometer2"></i> Dashboard</h3>
+
+<div class="row g-3 mb-3 mb-md-4">
+    <div class="col-6 col-md-6 col-lg-3">
+        <div class="card shadow-sm stat-card h-100">
+            <div class="card-body">
+                <small class="text-muted">Arrecadado no mês</small>
+                <div class="stat-value text-primary">R$ {{ total_mes|floatformat:2 }}</div>
+                <small class="text-muted">{{ hoje|date:"F/Y" }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-6 col-lg-3">
+        <div class="card shadow-sm stat-card h-100" style="border-left-color:#198754;">
+            <div class="card-body">
+                <small class="text-muted">Arrecadado no ano</small>
+                <div class="stat-value text-success">R$ {{ total_ano|floatformat:2 }}</div>
+                <small class="text-muted">{{ hoje|date:"Y" }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-6 col-lg-3">
+        <div class="card shadow-sm stat-card h-100" style="border-left-color:#0dcaf0;">
+            <div class="card-body">
+                <small class="text-muted">Fiéis ativos</small>
+                <div class="stat-value text-info">{{ qtd_fieis_ativos }}</div>
+                <small class="text-muted">cadastrados</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-6 col-lg-3">
+        <div class="card shadow-sm stat-card h-100" style="border-left-color:#dc3545;">
+            <div class="card-body">
+                <small class="text-muted">Inadimplentes no mês</small>
+                <div class="stat-value text-danger">{{ qtd_inadimplentes }}</div>
+                <small class="text-muted">sem dízimo em {{ hoje|date:"m/Y" }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                {{ grafico_html|safe }}
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <strong><i class="bi bi-exclamation-circle text-danger"></i> Inadimplentes</strong>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for fiel in inadimplentes %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ fiel.nome }}</span>
+                        <a href="{% url 'dashboard:historico' fiel.pk %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-clock-history"></i>
+                        </a>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">Nenhum inadimplente no mês.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mt-4">
+    <div class="card-header">
+        <strong><i class="bi bi-clock-history"></i> Últimos pagamentos</strong>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Data</th>
+                    <th>Fiel</th>
+                    <th class="d-none d-md-table-cell">Referência</th>
+                    <th class="d-none d-lg-table-cell">Forma</th>
+                    <th class="text-end">Valor</th>
+                    <th class="d-none d-sm-table-cell">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in ultimos_pagamentos %}
+                <tr>
+                    <td>{{ p.data_pagamento|date:"d/m/Y" }}</td>
+                    <td>
+                        {{ p.fiel.nome }}
+                        <div class="d-md-none small text-muted">
+                            Ref. {{ p.referencia|date:"m/Y" }}
+                            {% if p.pago %}
+                                <span class="badge bg-success ms-1 d-sm-none">Pago</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark ms-1 d-sm-none">Pendente</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="d-none d-md-table-cell">{{ p.referencia|date:"m/Y" }}</td>
+                    <td class="d-none d-lg-table-cell">{{ p.get_forma_pagamento_display }}</td>
+                    <td class="text-end">R$ {{ p.valor|floatformat:2 }}</td>
+                    <td class="d-none d-sm-table-cell">
+                        {% if p.pago %}
+                            <span class="badge bg-success">Pago</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pendente</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-4">Nenhum pagamento registrado ainda.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

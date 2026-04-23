@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block titulo %}Excluir dízimo{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar exclusão</h5>
+            </div>
+            <div class="card-body">
+                <p>Confirmar exclusão do pagamento abaixo?</p>
+                <ul class="list-unstyled">
+                    <li><strong>Fiel:</strong> {{ dizimo.fiel.nome }}</li>
+                    <li><strong>Valor:</strong> R$ {{ dizimo.valor|floatformat:2 }}</li>
+                    <li><strong>Referência:</strong> {{ dizimo.referencia|date:"m/Y" }}</li>
+                    <li><strong>Data do pagamento:</strong> {{ dizimo.data_pagamento|date:"d/m/Y" }}</li>
+                </ul>
+                <form method="post" class="d-flex flex-column flex-sm-row gap-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Excluir
+                    </button>
+                    <a href="{% url 'dizimo:listar' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

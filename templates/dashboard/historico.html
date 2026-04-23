@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block titulo %}Histórico — {{ fiel.nome }}{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h3 class="mb-0"><i class="bi bi-clock-history"></i> Histórico — {{ fiel.nome }}</h3>
+    <div class="page-actions">
+        <a href="{% url 'fieis:detalhar' fiel.pk %}" class="btn btn-outline-secondary">Voltar ao fiel</a>
+    </div>
+</div>
+
+<div class="card shadow-sm stat-card mb-3">
+    <div class="card-body">
+        <small class="text-muted">Total histórico pago</small>
+        <div class="stat-value text-primary">R$ {{ total|floatformat:2 }}</div>
+        <small class="text-muted">{{ pagamentos|length }} pagamento{{ pagamentos|length|pluralize }}</small>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Data</th>
+                    <th class="d-none d-sm-table-cell">Referência</th>
+                    <th class="d-none d-md-table-cell">Forma</th>
+                    <th class="text-end">Valor</th>
+                    <th>Status</th>
+                    <th class="d-none d-lg-table-cell">Observação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pagamentos %}
+                <tr>
+                    <td>
+                        {{ p.data_pagamento|date:"d/m/Y" }}
+                        <div class="d-sm-none small text-muted">Ref. {{ p.referencia|date:"m/Y" }}</div>
+                    </td>
+                    <td class="d-none d-sm-table-cell">{{ p.referencia|date:"m/Y" }}</td>
+                    <td class="d-none d-md-table-cell">{{ p.get_forma_pagamento_display }}</td>
+                    <td class="text-end">R$ {{ p.valor|floatformat:2 }}</td>
+                    <td>
+                        {% if p.pago %}
+                            <span class="badge bg-success">Pago</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pendente</span>
+                        {% endif %}
+                    </td>
+                    <td class="d-none d-lg-table-cell"><small class="text-muted">{{ p.observacao|default:"—" }}</small></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-4">Sem pagamentos registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

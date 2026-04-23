@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-9">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-person"></i> {{ titulo }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12 col-md-8">
+                            <label class="form-label">Nome completo</label>
+                            {{ form.nome }}
+                            {% if form.nome.errors %}<div class="text-danger small">{{ form.nome.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">CPF</label>
+                            {{ form.cpf }}
+                            {% if form.cpf.errors %}<div class="text-danger small">{{ form.cpf.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label">Data de nascimento</label>
+                            {{ form.data_nascimento }}
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <label class="form-label">Telefone</label>
+                            {{ form.telefone }}
+                            {% if form.telefone.errors %}<div class="text-danger small">{{ form.telefone.errors|join:", " }}</div>{% endif %}
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label">E-mail</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-12"><hr><h6 class="text-muted">Endereço</h6></div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Rua</label>
+                            {{ form.rua }}
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <label class="form-label">Número</label>
+                            {{ form.numero }}
+                        </div>
+                        <div class="col-8 col-md-4">
+                            <label class="form-label">Bairro</label>
+                            {{ form.bairro }}
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Cidade</label>
+                            {{ form.cidade }}
+                        </div>
+                        <div class="col-12 col-md-6 d-flex align-items-md-end">
+                            <div class="form-check">
+                                {{ form.ativo }}
+                                <label class="form-check-label" for="{{ form.ativo.id_for_label }}">
+                                    Fiel ativo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex flex-column flex-sm-row gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Salvar
+                        </button>
+                        <a href="{% url 'fieis:listar' %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

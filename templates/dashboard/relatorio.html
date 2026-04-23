@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block titulo %}Relatório{% endblock %}
+
+{% block body %}
+<div class="page-header d-print-none">
+    <h3 class="mb-0"><i class="bi bi-file-earmark-text"></i> Relatório de Dízimos</h3>
+    <div class="page-actions">
+        <button onclick="window.print()" class="btn btn-outline-primary">
+            <i class="bi bi-printer"></i> Imprimir
+        </button>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3 d-print-none">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-6 col-md-3">
+                <label class="form-label">Ano</label>
+                <input type="number" name="ano" value="{{ ano }}" class="form-control">
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label">Mês</label>
+                <select name="mes" class="form-select">
+                    <option value="">Todos os meses</option>
+                    {% for num, rotulo in meses %}
+                        <option value="{{ num }}" {% if mes == num|stringformat:"s" %}selected{% endif %}>{{ rotulo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3 d-grid">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel"></i> Gerar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="text-center mb-3 d-none d-print-block">
+    <h4>Relatório de Dízimos</h4>
+    <p>Período: {% if mes %}{{ mes }}/{% endif %}{{ ano }}</p>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header d-flex flex-column flex-sm-row justify-content-sm-between gap-1">
+        <span>
+            Período:
+            <strong>
+                {% if mes %}{{ mes }}/{% endif %}{{ ano }}
+            </strong>
+        </span>
+        <span>Total: <strong class="text-success">R$ {{ total|floatformat:2 }}</strong></span>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Data</th>
+                    <th>Fiel</th>
+                    <th class="d-none d-md-table-cell">Referência</th>
+                    <th class="d-none d-lg-table-cell">Forma</th>
+                    <th class="text-end">Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pagamentos %}
+                <tr>
+                    <td>{{ p.data_pagamento|date:"d/m/Y" }}</td>
+                    <td>
+                        {{ p.fiel.nome }}
+                        <div class="d-md-none small text-muted">Ref. {{ p.referencia|date:"m/Y" }}</div>
+                    </td>
+                    <td class="d-none d-md-table-cell">{{ p.referencia|date:"m/Y" }}</td>
+                    <td class="d-none d-lg-table-cell">{{ p.get_forma_pagamento_display }}</td>
+                    <td class="text-end">R$ {{ p.valor|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted py-4">Nenhum pagamento no período.</td></tr>
+                {% endfor %}
+            </tbody>
+            <tfoot class="table-light">
+                <tr>
+                    <th colspan="2" class="text-end d-md-none">Total</th>
+                    <th colspan="4" class="text-end d-none d-md-table-cell">Total</th>
+                    <th class="text-end">R$ {{ total|floatformat:2 }}</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+{% endblock %}

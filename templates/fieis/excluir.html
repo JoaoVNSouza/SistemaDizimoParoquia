@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block titulo %}Excluir fiel{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-9 col-lg-7">
+        {% if tem_pagamentos %}
+            <div class="card shadow-sm border-warning">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0 text-dark">
+                        <i class="bi bi-exclamation-triangle"></i> Exclusão não permitida
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Não é possível excluir o fiel <strong>{{ fiel.nome }}</strong>
+                        (CPF {{ fiel.cpf }}) pois ele possui
+                        <strong>{{ qtd_pagamentos }}</strong> pagamento{{ qtd_pagamentos|pluralize }} registrado{{ qtd_pagamentos|pluralize }}
+                        no sistema.
+                    </p>
+                    <p class="text-muted">
+                        O histórico financeiro precisa ser preservado. Se o fiel não pertence
+                        mais à paróquia, marque-o como <strong>inativo</strong>: ele deixará
+                        de aparecer nas listas de inadimplentes e de seleção em novos dízimos,
+                        mas os pagamentos antigos continuarão disponíveis no histórico.
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        {% if fiel.ativo %}
+                            <form action="{% url 'fieis:inativar' fiel.pk %}" method="post" class="m-0">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-person-dash"></i> Marcar como inativo
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="badge bg-secondary align-self-center">
+                                Fiel já está inativo
+                            </span>
+                        {% endif %}
+                        <a href="{% url 'dashboard:historico' fiel.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-clock-history"></i> Ver histórico
+                        </a>
+                        <a href="{% url 'fieis:listar' %}" class="btn btn-outline-secondary">Voltar</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar exclusão</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Tem certeza que deseja excluir o fiel
+                        <strong>{{ fiel.nome }}</strong> (CPF {{ fiel.cpf }})?
+                    </p>
+                    <p class="text-muted small">Esta ação não poderá ser desfeita.</p>
+                    <form method="post" class="d-flex flex-column flex-sm-row gap-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Excluir
+                        </button>
+                        <a href="{% url 'fieis:detalhar' fiel.pk %}" class="btn btn-outline-secondary">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

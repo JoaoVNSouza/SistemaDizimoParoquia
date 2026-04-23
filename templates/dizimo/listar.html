@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block titulo %}Dízimos{% endblock %}
+
+{% block body %}
+<div class="page-header">
+    <h3 class="mb-0"><i class="bi bi-cash-coin"></i> Dízimos</h3>
+    <div class="page-actions">
+        <a href="{% url 'dizimo:registrar' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Registrar pagamento
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-md-6 col-lg-3">
+                <label class="form-label">Fiel</label>
+                <select name="fiel" class="form-select">
+                    <option value="">Todos</option>
+                    {% for f in fieis %}
+                        <option value="{{ f.id }}" {% if filtros.fiel == f.id|stringformat:"s" %}selected{% endif %}>{{ f.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <label class="form-label">Mês</label>
+                <select name="mes" class="form-select">
+                    <option value="">Todos</option>
+                    {% for num, rotulo in meses %}
+                        <option value="{{ num }}" {% if filtros.mes == num|stringformat:"s" %}selected{% endif %}>{{ rotulo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <label class="form-label">Ano</label>
+                <input type="number" name="ano" value="{{ filtros.ano }}" class="form-control" placeholder="2026">
+            </div>
+            <div class="col-12 col-md-6 col-lg-2">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">Todos</option>
+                    <option value="pago" {% if filtros.status == "pago" %}selected{% endif %}>Pago</option>
+                    <option value="pendente" {% if filtros.status == "pendente" %}selected{% endif %}>Pendente</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3 d-grid gap-2 d-sm-flex">
+                <button type="submit" class="btn btn-outline-primary flex-fill">
+                    <i class="bi bi-funnel"></i> Filtrar
+                </button>
+                <a href="{% url 'dizimo:listar' %}" class="btn btn-outline-secondary flex-fill">Limpar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-3 stat-card">
+    <div class="card-body py-2">
+        <small class="text-muted">Total dos filtros aplicados</small>
+        <div class="stat-value text-primary">R$ {{ total|floatformat:2 }}</div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Data</th>
+                    <th>Fiel</th>
+                    <th class="d-none d-md-table-cell">Referência</th>
+                    <th class="d-none d-lg-table-cell">Forma</th>
+                    <th class="text-end">Valor</th>
+                    <th class="d-none d-sm-table-cell">Status</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in page_obj %}
+                <tr>
+                    <td>{{ d.data_pagamento|date:"d/m/Y" }}</td>
+                    <td>
+                        {{ d.fiel.nome }}
+                        <div class="d-md-none small text-muted">
+                            Ref. {{ d.referencia|date:"m/Y" }}
+                            {% if d.pago %}
+                                <span class="badge bg-success ms-1 d-sm-none">Pago</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark ms-1 d-sm-none">Pendente</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="d-none d-md-table-cell">{{ d.referencia|date:"m/Y" }}</td>
+                    <td class="d-none d-lg-table-cell">{{ d.get_forma_pagamento_display }}</td>
+                    <td class="text-end">R$ {{ d.valor|floatformat:2 }}</td>
+                    <td class="d-none d-sm-table-cell">
+                        {% if d.pago %}
+                            <span class="badge bg-success">Pago</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pendente</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end acoes-cell">
+                        <form action="{% url 'dizimo:marcar_pago' d.pk %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-{% if d.pago %}warning{% else %}success{% endif %}"
+                                    title="Alternar status">
+                                <i class="bi bi-arrow-left-right"></i>
+                            </button>
+                        </form>
+                        <a href="{% url 'dizimo:editar' d.pk %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{% url 'dizimo:comprovante' d.pk %}" target="_blank"
+                           class="btn btn-sm btn-outline-primary" title="Imprimir comprovante">
+                            <i class="bi bi-printer"></i>
+                        </a>
+                        <a href="{% url 'dizimo:excluir' d.pk %}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-4">Nenhum pagamento encontrado.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-3">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+        {% endif %}
+        <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
