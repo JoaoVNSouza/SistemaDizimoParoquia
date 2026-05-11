@@ -18,6 +18,14 @@ O sistema centraliza o ciclo completo do dízimo paroquial:
 
 ---
 
+## 📸 Exemplo do sistema
+
+Tela do **Dashboard**, com KPIs do mês/ano, filtros e listagem de pagamentos:
+
+![Exemplo da tela do Dashboard do sistema de dízimo](static/imagem_sistema_exemplo.png)
+
+---
+
 ## 🧱 Tecnologias utilizadas
 
 | Camada | Tecnologia |
